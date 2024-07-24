@@ -1,5 +1,5 @@
 # Bulk Email Sender 
-### ur🔗 https://bulk-mail-sender.streamlit.app/
+### url🔗 https://bulk-mail-sender.streamlit.app/
 
 ## Overview
 
