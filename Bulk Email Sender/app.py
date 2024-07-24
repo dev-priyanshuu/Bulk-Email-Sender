@@ -10,14 +10,15 @@ api_key = os.getenv("GOOGLE_API_KEY")
 
 st.set_page_config(page_title="Email Sender")
 
-st.header("Bulk Email Sender using LLM")
+st.header("Bulk Email Sender")
 
 uploaded_file = st.file_uploader("Upload a file (PDF, Excel, CSV)", type=["pdf", "xlsx", "csv"])
 attachment_file = st.file_uploader("Upload a file to attach (optional)", type=["pdf", "docx", "xlsx", "csv"])
 subject = st.text_input("Email Subject")
 content = st.text_area("Email Content")
-user_email = st.text_input("Your Email")
-user_password = st.text_input("Your Email Password", type="password")
+user_email = st.text_input("Sender Email")
+user_password = st.text_input("Your App Password", type="password")
+st.markdown("[How to create an app password?](https://support.google.com/accounts/answer/185833?hl=en)")
 
 submit = st.button("Send Emails")
 
