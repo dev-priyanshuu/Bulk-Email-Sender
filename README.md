@@ -1,4 +1,4 @@
-# Bulk Email Sender
+# Bulk Email Sender https://bulk-mail-sender.streamlit.app/
 
 ## Overview
 
