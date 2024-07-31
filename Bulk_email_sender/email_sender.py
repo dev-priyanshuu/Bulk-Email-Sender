@@ -1,11 +1,11 @@
-# email_sender.py
-
 import pandas as pd
 from PyPDF2 import PdfFileReader
 import re
+from email.message import EmailMessage    
+import smtplib, ssl
 
 def read_emails(file):
-    file_extension = file.name.split('.')[-1]
+    file_extension = file.name.split('.')[-1].lower()
     if file_extension == 'csv':
         df = pd.read_csv(file)
     elif file_extension == 'xlsx':
@@ -30,34 +30,38 @@ def read_emails(file):
     
     return df[email_column].tolist()
 
-def send_email(user_email, user_password, recipient, subject, content, attachment=None):
-    import smtplib
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.text import MIMEText
-    from email.mime.base import MIMEBase
-    from email import encoders
-
+def send_email(user_email, user_password, recipient, subject, body_message, attachments):
     try:
-        msg = MIMEMultipart()
-        msg['From'] = user_email
-        msg['To'] = recipient
-        msg['Subject'] = subject
-        msg.attach(MIMEText(content, 'plain'))
-
-        if attachment:
-            part = MIMEBase('application', 'octet-stream')
-            part.set_payload(attachment.read())
-            encoders.encode_base64(part)
-            part.add_header('Content-Disposition', f'attachment; filename={attachment.name}')
-            msg.attach(part)
-
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(user_email, user_password)
-        text = msg.as_string()
-        server.sendmail(user_email, recipient, text)
-        server.quit()
+        context = ssl.create_default_context()
+        with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as server:
+            server.login(user_email, user_password)
+            
+            em = EmailMessage()
+            em['From'] = user_email
+            em['To'] = recipient
+            em['Subject'] = subject
+            em.set_content(body_message)
+            
+            for attachment in attachments:
+                em.add_attachment(
+                    attachment["content"],
+                    maintype=attachment["maintype"],
+                    subtype=attachment["subtype"],
+                    filename=attachment["filename"]
+                )
+            
+            server.send_message(em)
+        
         return True
+        
+    except smtplib.SMTPAuthenticationError:
+        print(f"Authentication failed. Check your email and password.")
+    except smtplib.SMTPConnectError:
+        print(f"Failed to connect to the SMTP server. Check your network settings.")
+    except smtplib.SMTPException as e:
+        print(f"SMTP error occurred: {e}")
     except Exception as e:
         print(f"Failed to send email to {recipient}. Error: {e}")
-        return False
+    
+    return False
+
